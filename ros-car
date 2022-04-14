@@ -1,6 +1,7 @@
 #include <ros.h> 
 #include <std_msgs/String.h>
 #include <std_msgs/UInt16.h>
+#include <std_msgs/Float64.h>
 #include <geometry_msgs/Twist.h>
 
 #define ENA 5
@@ -119,7 +120,7 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-  db_msg.data = getDistance;
+  db_msg.data = getDistance();
   publisher.publish(&db_msg);
   nh.spinOnce(); //run node handler once to handle comms
 }
