@@ -85,16 +85,16 @@ ros::Subscriber<geometry_msgs::Twist> sub("teleop", &subscriberCallback);
 
 void subscriberCallback(const geometry_msgs::Twist &msg){
   //content
-  if (msg.linear.x > 0){
+  if (msg.linear.z > 0){
     moveForward();
   }
-  if (msg.linear.z > 0){
+  if (msg.linear.x > 0){
     turnRight();
   }
-  if (msg.linear.x < 0){
+  if (msg.linear.z < 0){
     moveBackward();
   }
-  if (msg.linear.z < 0){
+  if (msg.linear.x < 0){
     turnLeft();
   }
   else {
