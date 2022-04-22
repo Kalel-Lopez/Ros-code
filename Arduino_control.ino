@@ -11,9 +11,9 @@ double distance = 0;
 
 ros::NodeHandle nh;
 geometry_msgs::Twist msg;
+std_msgs::Float64 db_msg;
 
 ros::Publisher pub("move", &msg);
-ros::Subscriber<std_msgs::Float64> sub("distance", &subscriberCallback);
 
 void subscriberCallback(const std_msgs::Float64 &db_msg){
   distance = db_msg.data;
@@ -21,6 +21,8 @@ void subscriberCallback(const std_msgs::Float64 &db_msg){
     analogWrite(led, 255);
   }
 }
+
+ros::Subscriber<std_msgs::Float64> sub("distance", &subscriberCallback);
 
 void setup() {
   // put your setup code here, to run once:
