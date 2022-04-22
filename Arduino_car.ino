@@ -4,40 +4,92 @@
 #include <std_msgs/Float64.h>
 #include <geometry_msgs/Twist.h>
 
-const int pin = 2;
-const int led = 6;
+#define ENA 5
+#define ENB 6
+#define IN1 7
+#define IN2 8
+#define IN3 9
+#define IN4 11
 
-double distance = 0;
+#define MAX_SPEED 255
 
+std_msgs::Float64 db_msg;
 ros::NodeHandle nh;
 geometry_msgs::Twist msg;
 
-ros::Publisher pub("move", &msg);
-ros::Subscriber<std_msgs::Float64> sub("distance", &subscriberCallback);
+double getDistance(){
+  digitalWrite(A5, LOW);
+  delayMicroseconds(2);
+  digitalWrite(A5, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(A5, LOW);
+  
+  long raw = pulseIn(A4, HIGH);
+  double distance = raw * 0.034 / 2;
 
-void subscriberCallback(const std_msgs::Float64 &db_msg){
-  distance = db_msg.data;
-  if (distance > 15){
-    analogWrite(led, 255);
+  Serial.print("Distance: ");
+  Serial.print(distance);
+  Serial.println("cm");
+  
+  return distance;
+}
+
+void leftSide Move(int s){
+  analogWrite(ENA, abs(s));
+  if (s>0) {
+    digitalWrite(IN1, HIGH);
+    digitalWrite(IN2, LOW);
   }
+  if(s<0) {
+    digitalWrite(IN1, LOW);
+    digitalWrite(IN2, HIGH);
+  }
+}
+void rightSideMove(int s){
+  analogWrite(ENB, abs(s));
+  if (s>0) {
+    digitalWrite(IN3, LOW);
+    digitalWrite(IN4, HIGH);
+  }
+  if(s<0) {
+    digitalWrite(IN3, HIGH);
+    digitalWrite(IN4, LOW);
+  }
+}
+
+void chassisMove(int vf, int vr) {
+ int leftSpeed = vf + vr;
+ int rightSpeed = vf - vr;
+ leftSideMove(leftSpeed);
+ rightSideMove(rightSpeed);
+}
+
+ros::Publisher pub("distance", &db_msg);
+ros::Subscriber<geometry_msgs::Twist> sub("teleop", &subscriberCallback);
+
+void subscriberCallback(const geometry_msgs::Twist &msg){
+  //content
+  vf = msg.linear.x;
+  vr = msg.angular.z;
+  chassisMove(vf, vr);
 }
 
 void setup() {
   // put your setup code here, to run once:
-  pinMode(pin, INPUT);
-  pinMode(led, OUTPUT);
-  digitalWrite(pin, HIGH);
+  pinMode(IN1, OUTPUT);
+  pinMode(IN2, OUTPUT);
+  pinMode(IN3, OUTPUT);
+  pinMode(IN4, OUTPUT);
+  pinMode(ENA, OUTPUT);
+  pinMode(ENB, OUTPUT);
   nh.initNode();//initialize node
   nh.advertise(pub); //start the publisher
-  nh.subscribe(sub); //start the subscriber 
-
+  nh.subscribe(sub); //start the subscriber
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
-  msg.linear.x = analogRead(A0);
-  msg.angular.z = analogRead(A1);
-  pub.publish(&msg);
-  nh.spinOnce();
-  
+  db_msg.data = getDistance();
+  pub.publish(&db_msg);
+  nh.spinOnce(); //run node handler once to handle comms
 }
