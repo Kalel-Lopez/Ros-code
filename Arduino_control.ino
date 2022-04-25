@@ -16,8 +16,11 @@ ros::Publisher pub("move", &msg);
 
 void subscriberCallback(const std_msgs::Float64 &db_msg){
   distance = db_msg.data;
-  if (distance > 15){
+  if (distance < 15.0){
     digitalWrite(led, HIGH);
+  }
+  else {
+    digitalWrite(led, LOW);
   }
 }
 
@@ -36,8 +39,12 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-  msg.linear.x = analogRead(A0);
-  msg.angular.z = analogRead(A1);
+  int x = analogRead(A0);
+  x = map(x, 0, 1023, -255, 255);
+  msg.linear.x = x;
+  int z = analogRead(A1);
+  z = map(z, 0, 1023, -255, 255);
+  msg.angular.z = z;
   pub.publish(&msg);
   nh.spinOnce();
   
