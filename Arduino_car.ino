@@ -13,6 +13,9 @@
 
 #define MAX_SPEED 255
 
+int vf = 0;
+int vr = 0;
+
 std_msgs::Float64 db_msg;
 ros::NodeHandle nh;
 geometry_msgs::Twist msg;
@@ -27,14 +30,10 @@ double getDistance(){
   long raw = pulseIn(A4, HIGH);
   double distance = raw * 0.034 / 2;
 
-  Serial.print("Distance: ");
-  Serial.print(distance);
-  Serial.println("cm");
-  
   return distance;
 }
 
-void leftSide Move(int s){
+void leftSideMove(int s){
   analogWrite(ENA, abs(s));
   if (s>0) {
     digitalWrite(IN1, HIGH);
@@ -82,6 +81,8 @@ void setup() {
   pinMode(IN4, OUTPUT);
   pinMode(ENA, OUTPUT);
   pinMode(ENB, OUTPUT);
+  pinMode(A5, OUTPUT);
+  pinMode(A4, INPUT);
   nh.initNode();//initialize node
   nh.advertise(pub); //start the publisher
   nh.subscribe(sub); //start the subscriber
