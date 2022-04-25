@@ -4,8 +4,7 @@
 #include <std_msgs/Float64.h>
 #include <geometry_msgs/Twist.h>
 
-const int pin = 2;
-const int led = 6;
+const int led = 3;
 
 double distance = 0;
 
@@ -18,7 +17,7 @@ ros::Publisher pub("move", &msg);
 void subscriberCallback(const std_msgs::Float64 &db_msg){
   distance = db_msg.data;
   if (distance > 15){
-    analogWrite(led, 255);
+    digitalWrite(led, HIGH);
   }
 }
 
@@ -26,9 +25,9 @@ ros::Subscriber<std_msgs::Float64> sub("distance", &subscriberCallback);
 
 void setup() {
   // put your setup code here, to run once:
-  pinMode(pin, INPUT);
   pinMode(led, OUTPUT);
-  digitalWrite(pin, HIGH);
+  pinMode(A0, INPUT);
+  pinMode(A1, INPUT);
   nh.initNode();//initialize node
   nh.advertise(pub); //start the publisher
   nh.subscribe(sub); //start the subscriber 
