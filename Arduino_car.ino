@@ -64,12 +64,12 @@ void chassisMove(int vf, int vr) {
 }
 
 ros::Publisher pub("distance", &db_msg);
-ros::Subscriber<geometry_msgs::Twist> sub("teleop", &subscriberCallback);
+ros::Subscriber<geometry_msgs::Twist> sub("move", &subscriberCallback);
 
-void subscriberCallback(const geometry_msgs::Twist &msg){
+void subscriberCallback(const geometry_msgs::Twist& msg){
   //content
-  vf = msg.linear.x;
-  vr = msg.angular.z;
+  vr = msg.linear.x;
+  vf = msg.angular.z;
   chassisMove(vf, vr);
 }
 
