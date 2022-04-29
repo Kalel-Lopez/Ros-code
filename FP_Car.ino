@@ -3,6 +3,7 @@
 #include <std_msgs/UInt16.h>
 #include <std_msgs/Float64.h>
 #include <geometry_msgs/Twist.h>
+#include <std_msgs/Bool.h>
 #include<Servo.h>
 Servo servo;
 
@@ -21,6 +22,7 @@ int vr = 0;
 std_msgs::Float64 db_msg;
 ros::NodeHandle nh;
 geometry_msgs::Twist msg;
+std_msgs::Bool b_msg;
 
 double getDistance(){
   digitalWrite(A5, LOW);
@@ -124,15 +126,18 @@ void chassisMove(int vf, int vr) {
 
 ros::Publisher pub("distance", &db_msg);
 ros::Subscriber<geometry_msgs::Twist> sub("move", &subscriberCallback);
+ros::Subscriber<std_msgs::Bool> sub2("button", &subscriberCallback2);
 
 void subscriberCallback(const geometry_msgs::Twist& msg){
   //content
-  if msg.data {
-    obstacle();
-  }
   vr = msg.linear.x;
   vf = msg.angular.z;
   chassisMove(vf, vr);
+}
+void subscriberCallback2(const std_msgs::Bool &b_msg){
+  if (b_msg.data) {
+    obstacle();
+  }
 }
 
 void setup() {
@@ -149,6 +154,7 @@ void setup() {
   nh.initNode();//initialize node
   nh.advertise(pub); //start the publisher
   nh.subscribe(sub); //start the subscriber
+  nh.subscribe(sub2);
 }
 
 void loop() {

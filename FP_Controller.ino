@@ -3,6 +3,7 @@
 #include <std_msgs/UInt16.h>
 #include <std_msgs/Float64.h>
 #include <geometry_msgs/Twist.h>
+#include <std_msgs/Bool.h>
 
 #define D5 587
 
@@ -14,8 +15,10 @@ double distance = 0;
 ros::NodeHandle nh;
 geometry_msgs::Twist msg;
 std_msgs::Float64 db_msg;
+std_msgs::Bool b_msg;
 
 ros::Publisher pub("move", &msg);
+ros::Publisher pub2("button", &b_msg);
 
 void subscriberCallback(const std_msgs::Float64 &db_msg){
   distance = db_msg.data;
@@ -40,11 +43,12 @@ ros::Subscriber<std_msgs::Float64> sub("distance", &subscriberCallback);
 
 void setup() {
   // put your setup code here, to run once:
-  pinMode(led, OUTPUT);
+  pinMode(buzzer, OUTPUT);
   pinMode(A0, INPUT);
   pinMode(A1, INPUT);
   nh.initNode();//initialize node
   nh.advertise(pub); //start the publisher
+  nh.advertise(pub2);
   nh.subscribe(sub); //start the subscriber 
 
 }
@@ -58,8 +62,9 @@ void loop() {
   z = map(z, 0, 1023, -255, 255);
   msg.angular.z = z;
   int button = digitalRead(2);
-  msg.data = button;
+  b_msg.data = button;
   pub.publish(&msg);
+  pub2.publish(&b_msg);
   nh.spinOnce();
   
 }
