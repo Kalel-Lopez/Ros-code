@@ -87,7 +87,6 @@ void turnRight(){
 void obstacle(){
   float d = getDistance();
   if (d < 15) {
-    stop();
     servo.write(180);
     delay(400);
     float a = getDistance();
@@ -95,7 +94,6 @@ void obstacle(){
       turnLeft();
       delay(1000);
       servo.write(90);
-      stop();
     }
     else{
       servo.write(0);
@@ -104,7 +102,6 @@ void obstacle(){
       if (c > 15) {
         turnRight();
         delay(1000);
-        stop();
         servo.write(90);
       }
       else {
@@ -126,16 +123,16 @@ void chassisMove(int vf, int vr) {
 
 ros::Publisher pub("distance", &db_msg);
 ros::Subscriber<geometry_msgs::Twist> sub("move", &subscriberCallback);
-ros::Subscriber<std_msgs::Bool> sub2("button", &subscriberCallback2);
+ros::Subscriber<std_msgs::UInt16> sub2("button", &subscriberCallback2);
 
 void subscriberCallback(const geometry_msgs::Twist& msg){
   //content
   vr = msg.linear.x;
-  vf = msg.angular.z;
+  vf = msg.linear.y;
   chassisMove(vf, vr);
 }
-void subscriberCallback2(const std_msgs::Bool &b_msg){
-  if (b_msg.data) {
+void subscriberCallback2(const std_msgs::UInt16 &b_msg){
+  if (b_msg.data == 1) {
     obstacle();
   }
 }
